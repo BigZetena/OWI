@@ -1,32 +1,53 @@
 const API_KEY_Whether = "998c29647ddd53b96d983d0b2e338814";
 const API_KEY_Ip = "at_lcoKCaOfoP0gGmVEWbmAvt6Kk7FEK&";
 const weatherCard = document.querySelector(".weather");
+const weatherHere = document.querySelector(".header__title");
 
 findLocation();
 
+function ucFirst(str) {
+  if (!str) return str;
+
+  return str[0].toUpperCase() + str.slice(1);
+}
+
 async function getCityByIP(key) {
   let res = await fetch(
-    `https://geo.ipify.org/api/v2/country,city?apiKey=at_lcoKCaOfoP0gGmVEWbmAvt6Kk7FEK&ipAddress=8.8.8.8`
+    `https://geo.ipify.org/api/v2/country,city?apiKey=${key}`
   );
   return res.json();
 }
-getCordsByIP();
 
 async function getCordsByIP() {
   const ipLocation = await getCityByIP(API_KEY_Ip);
   const { lat, lng } = ipLocation.location;
   const cords = { lng, lat };
-  console.log(cords);
   return cords;
 }
-
-console.log(getCityByIP());
 
 async function fetchWeatherCords(lat, lon, key) {
   let res = await fetch(
     `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${key}&units=metric`
   );
   return res.json();
+}
+
+async function fetchWeatherCity(city, key) {
+  try {
+    let res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`
+    );
+    const dataWetherByCity = await res.json();
+    console.log(dataWetherByCity);
+
+    if (dataWetherByCity.message.length) {
+      const errorInfo = true;
+      errorCardDrow(ucFirst(dataWetherByCity.message, errorInfo));
+    } else weatherCardDrow(dataWetherByCity);
+  } catch (err) {
+    const errorInfo = false;
+    errorCardDrow(ucFirst(dataWetherByCity.message, errorInfo));
+  }
 }
 
 function findLocation() {
@@ -42,8 +63,8 @@ function findLocation() {
       longitude,
       API_KEY_Whether
     );
-    weatherCardDrow(dataWether);
     console.log(dataWether);
+    weatherCardDrow(dataWether);
   }
 }
 
@@ -51,19 +72,53 @@ async function error() {
   try {
     const { lng, lat } = await getCordsByIP();
     const dataWether = await fetchWeatherCords(lat, lng, API_KEY_Whether);
-    console.log(dataWether);
     weatherCardDrow(dataWether);
   } catch (err) {
-    console.log(err);
+    cityCardDrow();
   }
 }
 
 function weatherCardDrow(data) {
   const temperture = Math.round(data.main.temp);
   const locationName = data.name;
-  const weatherDiscription = data.weather[0].main;
+  const weatherDiscription = data.weather[0].description;
+  const ucFirstWeatherDiscription = ucFirst(weatherDiscription);
   weatherCard.innerHTML = `<p class="weather__temperature"> ${temperture}°C </p>
-     <p class="weather__text" > ${weatherDiscription} in ${locationName} </p >
-     <a href="" class="weather__city">Change city</a>`;
-  console.log(temperture, locationName, weatherDiscription);
+     <p class="weather__text" > ${ucFirstWeatherDiscription} in ${locationName} </p >
+     <a class="weather__city">Change city</a>`;
+  const changeCityButton = weatherCard.querySelector(".weather__city");
+  changeCityButton.addEventListener("click", cityCardDrow);
 }
+
+function cityCardDrow() {
+  weatherCard.innerHTML = `<form class="weather">
+        <input
+          type="text"
+          placeholder="Type your city here"
+          class="weather__input"
+        />
+        <button class="weather__submit">Find</button>
+        </form>`;
+  const form = weatherCard.querySelector(".weather");
+  const input = weatherCard.querySelector(".weather__input");
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const cityName = input.value;
+    if (input.value.trim().length) {
+      fetchWeatherCity(cityName, API_KEY_Whether);
+    } else {
+      input.placeholder = "Input is empty, type your city";
+    }
+  });
+}
+
+function errorCardDrow(err, errorInfo) {
+  if (errorInfo)
+    weatherCard.innerHTML = `<p class="weather__error">Ooops. Something went wrong.</p>
+        <p class="weather__info">${err}</p>
+        <button class="weather__submit">Try again</button>`;
+  const tryAgainButton = weatherCard.querySelector(".weather__submit");
+  tryAgainButton.addEventListener("click", findLocation);
+}
+
+weatherHere.addEventListener("click", findLocation);

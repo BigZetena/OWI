@@ -19,6 +19,7 @@ body {
   color: rgba(255, 255, 255, 0.5);
   text-align: center;
   margin-top: 40px;
+  cursor: pointer;
 }
 
 .weather {
@@ -54,6 +55,7 @@ body {
   text-decoration-line: underline;
   color: rgba(255, 255, 255, 0.5);
   margin-top: 36px;
+  cursor: pointer;
 }
 
 .weather__input {
@@ -91,4 +93,19 @@ body {
   font-size: 20px;
   line-height: 36px;
   color: #4c01e0;
+}
+
+.weather__error {
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 36px;
+  color: #ffffff;
+}
+
+.weather__info {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 27px;
 }
