@@ -38,15 +38,12 @@ async function fetchWeatherCity(city, key) {
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`
     );
     const dataWetherByCity = await res.json();
-    console.log(dataWetherByCity);
-
-    if (dataWetherByCity.message.length) {
-      const errorInfo = true;
-      errorCardDrow(ucFirst(dataWetherByCity.message, errorInfo));
-    } else weatherCardDrow(dataWetherByCity);
+    if (!dataWetherByCity.message.length) weatherCardDrow(dataWetherByCity);
+    throw dataWetherByCity;
   } catch (err) {
-    const errorInfo = false;
-    errorCardDrow(ucFirst(dataWetherByCity.message, errorInfo));
+    if (err.message.length) {
+      errorCardDrow(ucFirst(err.message));
+    } else weatherCardDrow(err);
   }
 }
 
@@ -112,9 +109,8 @@ function cityCardDrow() {
   });
 }
 
-function errorCardDrow(err, errorInfo) {
-  if (errorInfo)
-    weatherCard.innerHTML = `<p class="weather__error">Ooops. Something went wrong.</p>
+function errorCardDrow(err) {
+  weatherCard.innerHTML = `<p class="weather__error">Ooops. Something went wrong.</p>
         <p class="weather__info">${err}</p>
         <button class="weather__submit">Try again</button>`;
   const tryAgainButton = weatherCard.querySelector(".weather__submit");
