@@ -38,7 +38,7 @@ async function fetchWeatherCity(city, key) {
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`
     );
     const dataWetherByCity = await res.json();
-    if (!dataWetherByCity.message.length) weatherCardDrow(dataWetherByCity);
+    if (!dataWetherByCity.message) weatherCardDrow(dataWetherByCity);
     throw dataWetherByCity;
   } catch (err) {
     if (err.message.length) {
